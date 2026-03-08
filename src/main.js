@@ -1,6 +1,6 @@
 import "./style.css";
 import { getWeather } from "./api-calls";
-import "./display-weather.js";
+import { extractWeatherData } from "./display-weather";
 
 const body = document.querySelector("body");
 
@@ -35,15 +35,9 @@ async function submitForm(e) {
   // storing the result in weatherData variable so we can access the full API response object
   // and its properties
   const weatherData = await getWeather(weatherUrl + userLocation + apiKey);
-  console.log(weatherData);
-  // TODO: create helper function to convert temp from farenheit to celsius
-  // NOTE: remove these two variables below in favor of having a function
-  // to extract the data from weatherData object
-  const temp = weatherData.currentConditions.temp;
-  const conditions = weatherData.currentConditions.conditions;
-  console.log(temp, conditions);
-  // TODO: call function from display-weather.js here to take the weather data above
-  // as an arguement
+
+  // calling extractWeatherData to take the needed info about the current cities weather
+  extractWeatherData(weatherData);
 }
 
 // adding event listener to the entire form in, listening for submit, if submit then use callback
