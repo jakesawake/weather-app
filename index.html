@@ -2,12 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>weather-app</title>
+    <title>Weather App</title>
   </head>
   <body>
-    <div id="app"></div>
+    <h1>Weather Today</h1>
+    <div class="location-form-container">
+      <form action="#" id="location-form">
+        <label for="location">Enter City here:</label>
+        <input type="text" name="location" value="" placeholder="Toronto" />
+        <button type="submit" id="submit-form-button">Submit</button>
+      </form>
+    </div>
+    <div class="weather-data-container"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
