@@ -1,23 +1,32 @@
 const weatherDataContainer = document.querySelector(".weather-data-container");
 const body = document.querySelector("body");
 
+// creating celsiusSymbol variable to store the celsius symbol with C
+const celsiusSymbol = "\u00B0C";
+
 // creating async function to load svg icon from a specific file path
 // used in order to be able to use the fill property on raw svg element
 // instead of creating an img element and pointing its src file
-async function loadSvgIcon(path, container) {
+async function loadSvgIcon(path, container, className) {
   try {
     // pause function here and wait to fetch the path
     const response = await fetch(path);
     // using .text() method in order to retrieve the text content from the response
     const svgText = await response.text();
-    // setting the innerHTML of whatever container we pass through to svgText
-    container.innerHTML = svgText;
+    // using insertAdjacentHTML so it appends the svg
+    container.insertAdjacentHTML("beforeend", svgText);
+    // selecting the containers svg element that's the last sibling of its
+    // specific element name within its parent
+    const svgElement = container.querySelector("svg:last-of-type");
+    // if its a svg element and a className is passed in guard clause
+    if (svgElement && className) {
+      // add that passed in className to the svgElement
+      svgElement.classList.add(className);
+    }
   } catch (error) {
     console.error("Failed to load SVG:", error);
   }
 }
-// NOTE: testing loadSvgIcon - placeholder for now
-loadSvgIcon("/svg/wi-day-sunny.svg", weatherDataContainer);
 
 // function that extracts weather data, takes weatherData as a parameter
 // extracting relevant data like the temp, conditions, high, low, feels like, etc.
@@ -31,7 +40,7 @@ function extractWeatherData(data) {
   const { highTempCelsius: high, lowTempCelsius: low } = loopThroughDays(data);
   // getting the conditions of the current city
   const conditions = data.currentConditions.conditions;
-  // TODO: might need to return a named object here ie. const extractedDataObj
+  // returning multiple values as an object (since the order they come don't matter)
   return { temp, feelsLike, high, low, conditions };
 }
 
@@ -60,34 +69,70 @@ function loopThroughDays(data) {
 
 // function for displaying styles for weather app
 // takes the weather data object as an arguement (temp, feels like, high, low, conditions)
-function displayWeather(data) {
+// making the function asynchronous so it plays nice with the loadSvgIcon function
+async function displayWeather(data) {
+  // clearing the weatherDataContainer before renderingso that every submission
+  // replaces old data instead of continously appending it
+  weatherDataContainer.innerHTML = "";
   if (data.temp >= 20) {
+    // changing the background gradient to look hot
     body.style.backgroundImage = "linear-gradient(to right, orange, yellow)";
-    // TODO: if the temp is hot, call the loadSvgIcon function here with the sunny icon
+    // calling the loadSvgIcon to get the icon we want, appending it to the weatherDataContainer
+    // making it the function pause here with await so that it can get the icon we need before
+    // appending
+    await loadSvgIcon(
+      "/svg/wi-day-sunny.svg",
+      weatherDataContainer,
+      "sunny-icon",
+    );
   } else if (data.temp < 5) {
+    // make the background gradient look cold
     body.style.backgroundImage = "linear-gradient(to right, white, grey)";
-    // TODO: if the temp is cold, invoke the loadSvgIcon function here with cold icon
+    // loading the snowflake icon to make it look cold
+    // using await to make the function pause hre so that we can load the icon we need
+    // before appending all of the elements
+    await loadSvgIcon(
+      "/svg/wi-snowflake-cold.svg",
+      weatherDataContainer,
+      "cold-icon",
+    );
   } else {
-    body.style.backgroundImage = "";
+    body.style.backgroundImage =
+      "linear-gradient(to right, lightblue, darkblue)";
+    // pausing the function here so we can get the icon we want before appending it
+    await loadSvgIcon(
+      "/svg/wi-day-haze.svg",
+      weatherDataContainer,
+      "mild-icon",
+    );
   }
-
   // container for the temp
   const tempContainer = document.createElement("div");
   tempContainer.classList.add("temp-container");
-  tempContainer.textContent = data.temp;
-  tempContainer.style.fontFamily = "system";
+  tempContainer.textContent = `${data.temp}${celsiusSymbol}`;
 
   // container for the feelsLike
   const feelsLikeContainer = document.createElement("div");
   feelsLikeContainer.classList.add("feels-like-container");
-  feelsLikeContainer.textContent = data.feelsLike;
-  feelsLikeContainer.style.fontFamily = "system";
+  feelsLikeContainer.textContent = `Feels like ${data.feelsLike}${celsiusSymbol}`;
 
-  // TODO: create containers for high/low and conditions weather data
+  // container for high/low temps
+  const highLowContainer = document.createElement("div");
+  highLowContainer.classList.add("high-low-container");
+  highLowContainer.style.display = "flex";
+  highLowContainer.style.flexDirection = "row";
+  highLowContainer.textContent = `High of ${data.high}${celsiusSymbol}/ Low of ${data.low}${celsiusSymbol}`;
+
+  // container for conditions
+  const conditionsContainer = document.createElement("div");
+  conditionsContainer.classList.add("conditions-container");
+  conditionsContainer.textContent = data.conditions;
 
   // appending the newly created divs to the weatherDataContainer
   weatherDataContainer.appendChild(tempContainer);
   weatherDataContainer.appendChild(feelsLikeContainer);
+  weatherDataContainer.appendChild(highLowContainer);
+  weatherDataContainer.appendChild(conditionsContainer);
 }
 
 export { extractWeatherData, displayWeather };
