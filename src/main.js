@@ -1,8 +1,6 @@
 import "./style.css";
 import { getWeather } from "./api-calls";
-import { extractWeatherData } from "./display-weather";
-
-const body = document.querySelector("body");
+import { extractWeatherData, displayWeather } from "./display-weather";
 
 // selecting the name field in the input form (so we don't have to declare a specific ID for that one input field)
 const locationInputField = document.querySelector("input[name='location']");
@@ -37,7 +35,12 @@ async function submitForm(e) {
   const weatherData = await getWeather(weatherUrl + userLocation + apiKey);
 
   // calling extractWeatherData to take the needed info about the current cities weather
-  extractWeatherData(weatherData);
+  // storing it in a variable so we can pass it off to the displayWeather function in display-weather.js
+  const extractedData = extractWeatherData(weatherData);
+  console.log(extractedData);
+
+  // calling displayWeather function to display data graphically
+  displayWeather(extractedData);
 }
 
 // adding event listener to the entire form in, listening for submit, if submit then use callback
