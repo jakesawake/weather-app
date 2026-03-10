@@ -1,4 +1,5 @@
 const weatherDataContainer = document.querySelector(".weather-data-container");
+const body = document.querySelector("body");
 
 // creating async function to load svg icon from a specific file path
 // used in order to be able to use the fill property on raw svg element
@@ -27,10 +28,9 @@ function extractWeatherData(data) {
   const feelsLike = convertTemp(data.currentConditions.feelslike);
   // destructuring the object we returned from loopThroughDays into simpler variables
   // called high and low
-  const { highTemp: high, lowTemp: low } = loopThroughDays(data);
+  const { highTempCelsius: high, lowTempCelsius: low } = loopThroughDays(data);
   // getting the conditions of the current city
   const conditions = data.currentConditions.conditions;
-  console.log(temp, feelsLike, high, low, conditions);
   // TODO: might need to return a named object here ie. const extractedDataObj
   return { temp, feelsLike, high, low, conditions };
 }
@@ -47,14 +47,47 @@ function convertTemp(temp) {
 // object and getting the feelslikemax and feelsikemin temps
 function loopThroughDays(data) {
   // get that days high temp value (data is a object that has a nested array of objects)
-  const highTemp = data.days[0].feelslikemax;
+  const highTempFarenheit = data.days[0].feelslikemax;
+  // converting to celsius
+  const highTempCelsius = convertTemp(highTempFarenheit);
   // get that days min temp value (data is a object that has a nested array of objects)
-  const lowTemp = data.days[0].feelslikemin;
+  const lowTempFarenheit = data.days[0].feelslikemin;
+  // converting to celsius
+  const lowTempCelsius = convertTemp(lowTempFarenheit);
   // returning object with the variables so we can use them in extractWeatherData
-  return { highTemp, lowTemp };
+  return { highTempCelsius, lowTempCelsius };
 }
 
-// TODO: create a function to display weather on the screen from the data returned
-// from extractWeatherData
+// function for displaying styles for weather app
+// takes the weather data object as an arguement (temp, feels like, high, low, conditions)
+function displayWeather(data) {
+  if (data.temp >= 20) {
+    body.style.backgroundImage = "linear-gradient(to right, orange, yellow)";
+    // TODO: if the temp is hot, call the loadSvgIcon function here with the sunny icon
+  } else if (data.temp < 5) {
+    body.style.backgroundImage = "linear-gradient(to right, white, grey)";
+    // TODO: if the temp is cold, invoke the loadSvgIcon function here with cold icon
+  } else {
+    body.style.backgroundImage = "";
+  }
 
-export { extractWeatherData };
+  // container for the temp
+  const tempContainer = document.createElement("div");
+  tempContainer.classList.add("temp-container");
+  tempContainer.textContent = data.temp;
+  tempContainer.style.fontFamily = "system";
+
+  // container for the feelsLike
+  const feelsLikeContainer = document.createElement("div");
+  feelsLikeContainer.classList.add("feels-like-container");
+  feelsLikeContainer.textContent = data.feelsLike;
+  feelsLikeContainer.style.fontFamily = "system";
+
+  // TODO: create containers for high/low and conditions weather data
+
+  // appending the newly created divs to the weatherDataContainer
+  weatherDataContainer.appendChild(tempContainer);
+  weatherDataContainer.appendChild(feelsLikeContainer);
+}
+
+export { extractWeatherData, displayWeather };
