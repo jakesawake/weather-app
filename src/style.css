@@ -19,6 +19,36 @@ body {
     sans-serif;
 }
 
+.location-form-container {
+  display: flex;
+  gap: 20px;
+}
+
+/* creating spinner looking circle*/
+.loading-spinner {
+  border: 2px solid black;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+/*making the spin animation*/
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/*class for hiding things*/
+.hidden {
+  display: none;
+}
+
 .weather-data-container {
   display: flex;
   flex-direction: column;
@@ -30,11 +60,38 @@ body {
   border: 2px solid white;
 }
 
-.weather-data-container svg {
-  fill: gold;
-  width: 200px;
+.sunny-icon {
+  fill: orange;
+}
+
+.cold-icon {
+  fill: white;
+}
+
+.mild-icon {
+  fill: blue;
 }
 
 .icon {
   width: 200px;
+}
+
+.temp-container {
+  font-size: 40px;
+  margin-bottom: 30px;
+}
+
+.feels-like-container {
+  font-size: 25px;
+  margin-bottom: 30px;
+}
+
+.high-low-container {
+  font-size: 20px;
+  margin-bottom: 30px;
+}
+
+.conditions-container {
+  font-size: 15px;
+  margin-bottom: 30px;
 }
