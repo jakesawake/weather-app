@@ -6,6 +6,8 @@ import { extractWeatherData, displayWeather } from "./display-weather";
 const locationInputField = document.querySelector("input[name='location']");
 // selecting the entire form
 const locationForm = document.querySelector("#location-form");
+const submitFormBtn = document.querySelector("#submit-form-button");
+const loadingSpinner = document.querySelector(".loading-spinner");
 
 // weather URL to build api call string
 let weatherUrl =
@@ -21,26 +23,50 @@ let apiKey = "?key=QHJPA4XZ2MVSAD73HT7RRF533";
 async function submitForm(e) {
   // preventing default behaviour of form after submitting
   e.preventDefault();
+  // disabling the submit form button while the data is still being processed
+  submitFormBtn.disabled = true;
+  // showing the spinner
+  loadingSpinner.classList.remove("hidden");
   // taking the users location in the locationInputField and then trimming any white space
   userLocation = locationInputField.value.trim();
+
+  let userLocationEntered = true;
   // guard clause for if no location was entered
   if (!userLocation) {
+    // hiding the spinner
+    loadingSpinner.classList.add("hidden");
+    // have the submit button ready to be clicked
+    submitFormBtn.disabled = false;
     throw new Error("No city entered");
   }
-  // else log the string to the console
-  console.log("city entered is:", userLocation);
+
   // using await to wait for getWeather to resolve
   // storing the result in weatherData variable so we can access the full API response object
-  // and its properties
-  const weatherData = await getWeather(weatherUrl + userLocation + apiKey);
+  // and its properties -> wrapping code that might fail in try block
+  try {
+    const weatherData = await getWeather(weatherUrl + userLocation + apiKey);
 
-  // calling extractWeatherData to take the needed info about the current cities weather
-  // storing it in a variable so we can pass it off to the displayWeather function in display-weather.js
-  const extractedData = extractWeatherData(weatherData);
-  console.log(extractedData);
+    // calling extractWeatherData to take the needed info about the current cities weather
+    // storing it in a variable so we can pass it off to the displayWeather function in display-weather.js
+    const extractedData = extractWeatherData(weatherData);
+    console.log(extractedData);
 
-  // calling displayWeather function to display data graphically
-  displayWeather(extractedData);
+    // calling displayWeather function to display data graphically
+    // since the displayWeather function is async (it awaits loadSvgIcon internally)
+    // we await it here in our submitForm function
+    await displayWeather(extractedData);
+
+    // handling error below
+  } catch (error) {
+    console.error("Failed to fetch weather:", error);
+
+    // using finally block -> code that always runs, regardless of any error
+  } finally {
+    // always hiding the spinner whether it succeeded or failed
+    loadingSpinner.classList.add("hidden");
+    // re-enabling submit button after the weather renders in
+    submitFormBtn.disabled = false;
+  }
 }
 
 // adding event listener to the entire form in, listening for submit, if submit then use callback
