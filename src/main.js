@@ -30,7 +30,6 @@ async function submitForm(e) {
   // taking the users location in the locationInputField and then trimming any white space
   userLocation = locationInputField.value.trim();
 
-  let userLocationEntered = true;
   // guard clause for if no location was entered
   if (!userLocation) {
     // hiding the spinner
